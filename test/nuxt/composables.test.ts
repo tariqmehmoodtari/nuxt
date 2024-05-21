@@ -162,7 +162,7 @@ describe('useAsyncData', () => {
 
   // https://github.com/nuxt/nuxt/issues/23411
   it('should initialize with error set to null when immediate: false', async () => {
-    const { error, execute } = useAsyncData(() => ({}), { immediate: false })
+    const { error, execute } = useAsyncData(() => Promise.resolve({}), { immediate: false })
     expect(error.value).toBe(null)
     await execute()
     expect(error.value).toBe(null)
@@ -213,7 +213,7 @@ describe('useAsyncData', () => {
   })
 
   it('allows custom access to a cache', async () => {
-    const { data } = await useAsyncData(() => ({ val: true }), { getCachedData: () => ({ val: false }) })
+    const { data } = await useAsyncData(() => Promise.resolve({ val: true }), { getCachedData: () => ({ val: false }) })
     expect(data.value).toMatchInlineSnapshot(`
       {
         "val": false,
@@ -313,6 +313,7 @@ describe('useFetch', () => {
 
   it('should timeout', async () => {
     const { status, error } = await useFetch(
+      // @ts-expect-error should resolve to a string
       () => new Promise(resolve => setTimeout(resolve, 5000)),
       { timeout: 1 },
     )
@@ -531,6 +532,7 @@ describe('loading state', () => {
 describe.skipIf(process.env.TEST_MANIFEST === 'manifest-off')('app manifests', () => {
   it('getAppManifest', async () => {
     const manifest = await getAppManifest()
+    // @ts-expect-error timestamp is not optional
     delete manifest.timestamp
     expect(manifest).toMatchInlineSnapshot(`
       {
